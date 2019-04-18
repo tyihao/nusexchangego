@@ -1,226 +1,331 @@
 <template>
   <v-container id="chart">
 
-    <v-layout row wrap align-center>
-      <v-flex xs6>
-        <font face='verdana' size='4'> Filters </font><br><br><br><br>
-        <div id="cap_filter">
-          <v-flex d-flex grid-list-lg>
-            <v-layout row wrap>
-              <v-flex xs9>
-                <v-slider
-                v-model="filterCap"
-                :max="5"
-                :step='0.01'
-                thumb-label
-                label="Cumulative Average Point"
-                ></v-slider>
-              </v-flex>
+    <v-layout row justify-space-around>
 
-              <v-flex xs9>
-                <v-range-slider
-                v-model="filterExp"
-                :max="20000"
-                :min="8000"
-                :step="1"
-                thumb-label
-                label="Average Expenditure"
-                ></v-range-slider>
-                <v-flex xs9>
-                  <v-btn flat small @click="reRender"> Update </v-btn>
-                </v-flex>
-              </v-flex>
-            </v-layout>
-          </v-flex d-flex>
+      <v-flex xs4 sm4 md3 offset-xs0 align-self-center>
+        <b-card
+        border-variant="secondary"
+        header="Filters"
+        header-border-variant="secondary"
+        align="center"
+        >
 
-        </div>
-      </v-flex>
-      <v-flex xs12 sm6>
-        <apexchart type=line height=350 :options="chartOptions" :series="series" />
-      </v-flex>
-    </v-layout>
-  </v-container>
+        <b-card-text>
+          <v-container>
+            <font face="verdana">Cumulative Average Point</font>
+
+            <v-flex xs12>
+              <vue-slider
+              ref="slider"
+              v-model="filterCap"
+              min="0.0"
+              max="5.0"
+              interval="0.01"
+              ></vue-slider>
+            </v-flex>
+
+
+
+            <font face="verdana">Average Expenditure</font>
+
+            <v-flex xs12>
+              <vue-slider
+              ref="slider"
+              v-model="filterExp"
+              min="8000"
+              :enable-cross='false'
+              max="20000"
+              interval="100"
+              ></vue-slider>
+            </v-flex>
+
+            <v-flex xs111>
+              <v-btn flat outline small @click="reRender"> Apply </v-btn>
+            </v-flex>
+
+
+          </v-container>
+        </b-card-text>
+      </b-card>
+      <v-spacer></v-spacer>
+    </v-flex>
+    <v-spacer></v-spacer>
+  </v-flex>
+  <v-flex xs17 sm9>
+    <apexchart type=line height=350 :options="chartOptions" :series="series" />
+  </v-flex>
+</v-layout>
+</v-container>
 </template>
 
 <script>
 
+import { universityDetailsDataRef } from '../../../firebase';
+
 export default {
+  firebase: {
+    universityDetailsData: universityDetailsDataRef
+  },
   methods: {
     reRender () {
-      this.indexs1 = [];
-      this.indexs2 = [];
-      this.filteredCap = [];
-      this.filteredExp = [];
-      this.filteredNumStudents = [];
-      this.filteredSchools = [];
-      for (i = 0; i < this.capCutOff.length; i++) {
-        if (this.capCutOff[i] <= this.filterCap){
-          this.indexs1.push(i);
-        }
+      this.CAPLimit = this.filterCap;
+      this.expenditureUpperLimit = this.filterExp[1];
+      this.expenditureLowerLimit = this.filterExp[0];    
       }
-      for (var i of this.indexs1) {
-        if ( this.avgExp[i] <= this.filterExp[1]){
-          var x = parseInt(i, 10);
-          this.indexs2.push(x);
-        }
-      }
+  },
+  computed: {
+    universityData() {
+      var result = [];
+      if (this.universityDetailsData.length > 0) {
+        var universityDetails = this.universityDetailsData[0];
 
-      for (var i of this.indexs2) {
-        this.filteredCap.push(this.capCutOff[i]);
-        this.filteredNumStudents.push(this.numStuds[i]);
-        this.filteredExp.push(this.avgExp[i]);
-        this.filteredSchools.push(this.schoolNames[i]);
-      }
+        var counter = 0;
+        var numberOfUni = Object.keys(universityDetails).length - 1;
 
-      this.series = [{
-        name: 'Average Expenditure',
-        type: 'column',
-        data: this.filteredExp
-      }, {
-        name: 'CAP Cut-Off',
-        type: 'column',
-        data: this.filteredCap
-      }, {
-        name: 'Number of Students',
-        type: 'line',
-        data: this.filteredNumStudents
-      }]
-      this.chartOptions = {
-        xaxis:{
-          categories: this.filteredSchools
+        for (var puName in universityDetails) {
+          
+          var expenditureDetails = universityDetails[puName]["Average Expenditure"];
+          var averageExpenditure = 0;
+          for (var i = 0; i < expenditureDetails.length; i++) {
+            averageExpenditure += expenditureDetails[i] / expenditureDetails.length;
+          }
+          averageExpenditure = Math.round(averageExpenditure);
+          
+          var CAPDetails = universityDetails[puName]["CAP Cut-off"];
+          var averageCAP = 0;
+          for (var i = 0; i < CAPDetails.length; i++) {
+            averageCAP += CAPDetails[i] / CAPDetails.length;
+          }
+          averageCAP = averageCAP.toFixed(2);
+
+          var studentsCount = universityDetails[puName]["Students Count by Major"];
+          var majors = universityDetails[puName]["Majors"];
+          var index = -1;
+          for (var i = 0; i < majors.length; i++) {
+            if (majors[i] == this.selectedMajor) {
+              index = i;
+            }
+          }
+          var numberStudents = studentsCount[index];
+
+          result.push({ name: puName, 
+                        expenditure: averageExpenditure,
+                        cap: averageCAP,
+                        numstu: numberStudents });
+  
+          counter += 1;
+          if (counter == numberOfUni) {
+            break;
+          }
         }
       }
+      return result;     
+    },
+    universityDataTopFive() {
+      var result = [];
+      if (this.universityData.length > 0) {
+
+        var indexUsed = [];
+        for (var counter = 0; counter < 5; counter++) {
+
+          var greatestIndex = -1;
+          var greatest = 0;
+          for (var i = 0; i < this.universityData.length; i++) {
+            if (this.universityData[i]["numstu"] > greatest) {
+              if (! indexUsed.includes(i)) {
+                if (this.universityData[i]["expenditure"] >= this.expenditureLowerLimit &&
+                    this.universityData[i]["expenditure"] <= this.expenditureUpperLimit) {
+                  if (this.universityData[i]["cap"] <= this.CAPLimit) {
+                    greatest = this.universityData[i]["numstu"];
+                    greatestIndex = i;
+                  }
+                }
+              }
+            }
+          }
+          if (greatestIndex != -1) {
+            result.push(this.universityData[greatestIndex]);
+            indexUsed.push(greatestIndex);
+          }
+        }
+      }
+      return result;
+    },
+    series() {
+      var result = [];
+      var expenditureData = [];
+      var CAPCutoffData = [];
+      var numberStudentsData = [];
+      if (this.universityDataTopFive.length > 0) {
+        for (var i = 0; i < this.universityDataTopFive.length; i++) {
+          var uniDetail = this.universityDataTopFive[i];
+          expenditureData.push(uniDetail["expenditure"]);
+          CAPCutoffData.push(uniDetail["cap"]);
+          numberStudentsData.push(uniDetail["numstu"]);
+        }
+      }
+      var numStuText = "Number of " + this.selectedMajor + " Students";
+      result.push({name: "Average Expenditure", type: "column", data: expenditureData});
+      result.push({name: "CAP Cut-Off", type: "column", data: CAPCutoffData});
+      result.push({name: numStuText, type: "line", data: numberStudentsData});
+      return result;
+    },
+    chartOptions() {
+      var result = {};
+      if (this.series.length > 0) {
+
+        var puNames = [];
+        for (var i = 0; i < this.universityDataTopFive.length; i++) {
+          puNames.push(this.universityDataTopFive[i]["name"]);
+        }
+        var chartTitle = "Most Popular Universities for " + this.selectedMajor + " Majors";
+        var yAxisNumStu = "Number of " + this.selectedMajor + " Students";
+
+        result = {
+          dataLabels: {
+            enabled: false
+          },
+          chart:{
+            toolbar: {
+              show: false
+            }
+          },
+          stroke: {
+            width: [1, 1, 4]
+          },
+          title: {
+            text: chartTitle,
+            align: 'center',
+            offsetX: 0,
+            style: {
+              fontSize: '16px',
+              fontFamily: 'Verdana',
+              color: undefined
+            } 
+          },
+          xaxis: {
+            categories: puNames,
+            labels: {
+              style: {
+                fontSize: '12px'
+              }
+            }
+          },
+          yaxis: [{
+            axisTicks: {
+              show: true,
+            },
+            axisBorder: {
+              show: true,
+              color: '#008FFB'
+            },
+            labels: {
+              style: {
+                color: '#008FFB',
+                fontSize: '13px'
+              }
+            },
+            title: {
+              text: "Average Expenditure (Singapore Dollars)",
+              style: {
+                color: '#008FFB',
+                fontSize: '13px'
+              }
+            },
+            tooltip: {
+              enabled: true
+            }
+          },
+            {
+            seriesName: 'CAP Cut-Off',
+            opposite: true,
+            axisTicks: {
+              show: true,
+            },
+            axisBorder: {
+              show: true,
+              color: '#00E396',
+              fontSize: '13px'
+            },
+            labels: {
+              style: {
+                color: '#00E396',
+                fontSize: '13px'
+              }
+            },
+            title: {
+              text: "CAP Cut-Off",
+              style: {
+                color: '#00E396',
+                fontSize: '13px'
+              }
+            },
+          },
+          {
+            seriesName: 'Number of Students',
+            opposite: true,
+            axisTicks: {
+              show: true,
+            },
+            axisBorder: {
+              show: true,
+              color: '#FEB019',
+              fontSize: '13px'
+            },
+            labels: {
+              style: {
+                color: '#FEB019',
+                fontSize: '13px'
+              },
+            },
+            title: {
+              text: yAxisNumStu,
+              style: {
+                color: '#FEB019',
+                fontSize: '13px'
+              }
+            }
+          }],
+          tooltip: {
+            fixed: {
+              enabled: true,
+              position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
+              offsetY: 30,
+              offsetX: 60
+            },
+          },
+          legend: {
+            horizontalAlign: 'center',
+            offsetX: 0
+          }
+        }
+      }
+      return result;
     }
   },
   data: function() {
     return {
-      schoolNames: ['Tsinghua University', 'Hong Kong University', 'ETH Zurich', 'New York University', 'Waterloo'],
-      filteredSchools: [],
-      filteredCap: [],
-      filteredNumStudents: [],
-      filteredExp: [],
-      indexs1: [],
-      indexs2: [],
-      avgExp: [12000, 16000, 15000, 11000, 17000],
-      capCutOff: [4.1,4.3,4.6,3.1,4.5],
-      numStuds: [23, 42, 43, 30, 41],
+      selectedMajor: "Business Analytics",
+      CAPLimit: 5.0,
+      expenditureUpperLimit: 20000,
+      expenditureLowerLimit: 8000,
       filterCap: 5.0,
-      filterExp: [8000,20000],
-      series: [{
-        name: 'Average Expenditure',
-        type: 'column',
-        data: [12000, 16000, 15000, 11000, 17000]
-      }, {
-        name: 'CAP Cut-Off',
-        type: 'column',
-        data: [4.1,4.3,4.6,3.1,4.5]
-      }, {
-        name: 'Number of Students',
-        type: 'line',
-        data: [23, 42, 43, 30, 41]
-      }],
-      chartOptions: {
-        dataLabels: {
-          enabled: false
-        },
-        chart:{
-          toolbar: {
-            show: false
-          }
-        },
-        stroke: {
-          width: [1, 1, 4]
-        },
-        title: {
-          text: 'Popular Universities for your major',
-          align: 'left',
-          offsetX: 160
-        },
-        xaxis: {
-          categories: ['Tsinghua University', 'Hong Kong University', 'ETH Zurich', 'New York University', 'Waterloo'],
-        },
-        yaxis: [{
-          axisTicks: {
-            show: true,
-          },
-          axisBorder: {
-            show: true,
-            color: '#008FFB'
-          },
-          labels: {
-            style: {
-              color: '#008FFB',
-            }
-          },
-          title: {
-            text: "Average Expenditure (Singapore Dollars)",
-            style: {
-              color: '#008FFB',
-            }
-          },
-          tooltip: {
-            enabled: true
-          }
-        },
-        {
-          seriesName: 'CAP Cut-Off',
-          opposite: true,
-          axisTicks: {
-            show: true,
-          },
-          axisBorder: {
-            show: true,
-            color: '#00E396'
-          },
-          labels: {
-            style: {
-              color: '#00E396',
-            }
-          },
-          title: {
-            text: "CAP Cut-Off",
-            style: {
-              color: '#00E396',
-            }
-          },
-        },
-        {
-          seriesName: 'Number of Students',
-          opposite: true,
-          axisTicks: {
-            show: true,
-          },
-          axisBorder: {
-            show: true,
-            color: '#FEB019'
-          },
-          labels: {
-            style: {
-              color: '#FEB019',
-            },
-          },
-          title: {
-            text: "Number of Students",
-            style: {
-              color: '#FEB019',
-            }
-          }
-        },
-      ],
-      tooltip: {
-        fixed: {
-          enabled: true,
-          position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
-          offsetY: 30,
-          offsetX: 60
-        },
-      },
-      legend: {
-        horizontalAlign: 'left',
-        offsetX: 40
-      }
+      filterExp: [8000,20000],   
     }
+  },
+  props: {
+    major:{
+      type:String
+    }
+  },
+  watch: {
+    major: function() {
+      this.selectedMajor = this.major
+    }
+  },
+  mounted(){
+    universityData()
   }
-}
 }
 </script>

@@ -36,10 +36,19 @@
         <v-spacer/>
         <v-spacer/>
         <v-btn
-         class="ml-0 hidden-sm-and-down"
-         flat
+          v-for="(link, i) in links2"
+          :key="i"
+          :to="link.to"
+          class="ml-0 hidden-sm-and-down"
+          flat
+          @click="onClick($event, item)"
         >
-         Profile
+          <div v-if="login">
+          Profile
+          </div>
+          <div v-else>
+            Profile
+          </div>
        </v-btn>
       </v-layout>
     </v-container>
@@ -55,9 +64,11 @@
 
   export default {
     computed: {
-      ...mapGetters(['links'])
+      ...mapGetters(['links','links2'])
     },
-
+    data:{
+      login: false
+    },
     methods: {
       ...mapMutations(['toggleDrawer']),
       onClick (e, item) {

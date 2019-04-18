@@ -1,34 +1,52 @@
 <template>
   <v-container>
     <v-layout>
+
       <v-flex xs6 align-center>
         <v-subheader> Select up to 3 universities you are interested in</v-subheader>
       </v-flex>
       <v-flex xs6 align-center>
-        <multiselect :max="3" :hide-selected="true" :options-limit="10" v-model="value" tag-placeholder="Add this as new tag" placeholder="Search and add a university" label="name" track-by="code" :options="options" :multiple="true" :taggable="true" @tag="addTag"></multiselect>
+        <multiselect :max="3" :hide-selected="true" :options-limit="10" v-model="value" tag-placeholder="Add this as new tag" placeholder="Search and add a university" label="name" track-by="data" :options="options" :multiple="true" :taggable="true" @tag="addTag"></multiselect>
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-import Multiselect from 'vue-multiselect'
+
+import Multiselect from 'vue-multiselect';
+import { compareUniversitiesDataRef } from '../../../firebase';
+
 export default {
   components: {
     Multiselect
   },
+  firebase: {
+    compareUniversitiesData: compareUniversitiesDataRef
+  },
+  computed: {
+    options() {
+      var result = []
+      if (this.compareUniversitiesData.length > 0) {
+        for (var universityName in this.compareUniversitiesData[0]) {
+          if (universityName != ".key") {
+            var value = this.compareUniversitiesData[0][universityName];
+            result.push({name: universityName, data: value});
+          }
+        }
+      }
+      return result;
+    }
+  },
   data () {
     return {
-      value: [
-      ],
-      options: [
-        { name: 'Georgia Institute of Technology', code: 'vu' },
-        { name: 'Tsinghua University', code: 'jsx' },
-        { name: 'ETH Zurich', code: 'jas' },
-        { name: 'New York University', code: 'jds' },
-        { name: 'Waterloo', code: 'jxas' },
-        { name: 'Hong Kong University', code: 'osea' }
-      ]
+      value: []
+    }
+  },
+  watch: {
+    value () {
+      this.$emit("changeSchool", this.value)
+      return this.value === this.value
     }
   },
   methods: {
@@ -39,7 +57,7 @@ export default {
       }
       this.options.push(tag)
       this.value.push(tag)
-    }
+    },
   }
 }
 </script>

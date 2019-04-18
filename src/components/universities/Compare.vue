@@ -7,15 +7,16 @@
   <br>
   <v-layout row wrap>
   <v-flex xs12>
-  <multi-selects/>
+  <multi-selects @changeSchool="changeSchool"/>
   </v-flex>
   <v-layout>
-  <v-flex xs6>
-  <radial-chart/>
+  <v-flex xs12>
+  <radial-chart v-show="schools[0]" :parentSchools="schools"/>
+  <div v-if="!schools[0]" align='center'>
+    <br><br><br><br><br><br>Please select at least one University.<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  </div>
   </v-flex>
-  <v-flex xs6>
-  <radial-chart/>
-  </v-flex>
+
   </v-layout>
   </v-layout>
 </v-container>
@@ -27,8 +28,13 @@ export default {
   name: 'Compare Universities',
   data() {
     return {
-
+      schools: []
     };
+  },
+  methods: {
+    changeSchool(variable) {
+      this.schools = variable;
+    }
   },
   components: {
     RadialChart: () => import('@/components/universities/compare_coms/RadialChart'),

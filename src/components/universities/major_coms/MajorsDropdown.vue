@@ -11,7 +11,7 @@
 
        <v-flex xs12 sm6>
          <v-select
-           v-model="select"
+           v-model="selectedMajor"
            :items="majors"
 
            label="Select"
@@ -27,21 +27,23 @@
 <script>
   export default {
     data: () => ({
+      yourMajor: "Business Analytics",
       majors: [
         'Business Analytics',
         'Computer Science',
-        'Information Security',
         'Information Systems'
-
       ],
-      selectedMajor: ''
+      selectedMajor: 'Business Analytics'
     }),
 
-    computed: {
-      changeMajor () {
+    watch: {
+      selectedMajor () {
         this.$emit("newMajor",this.selectedMajor)
     }
 
+    },
+    mounted(){
+      selectedMajor()
     }
   }
 </script>

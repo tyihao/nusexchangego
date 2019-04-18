@@ -1,6 +1,5 @@
-lm ,<template>
+<template>
   <div>
-
     <apexchart type=radar height=350 :options="chartOptions" :series="series"/></apexchart>
   </div>
 </template>
@@ -8,41 +7,45 @@ lm ,<template>
 <script>
 
 export default {
-    data: function() {
-      return {
-        series: [{
-            name: 'Georgia Institute of Technology',
-            data: [2,3,4,5,3,2],
-        }, {
-            name: 'New York University',
-            data: [5,3,1,2,3,5],
-        }, {
-            name: 'University of California',
-            data: [3,3,4,4,2,1],
-        }],
+  props: {
+    parentSchools: {
+      type: Array
+    }
+  },
+  watch: {
+    parentSchools: function(){
+      this.schools = this.parentSchools
+      this.series = this.parentSchools
+    }
+  },
+  data: function() {
+    return {
+      schools: [],
 
-        chartOptions: {
-          chart: {
-              dropShadow: {
-                  enabled: false,
-                  blur: 1,
-                  left: 1,
-                  top: 1
-              },
-              toolbar: {show: false}
-          },
+      series: [],
 
-          stroke: {
-              width: 0
+      chartOptions: {
+        chart: {
+          dropShadow: {
+            enabled: false,
+            blur: 1,
+            left: 1,
+            top: 1
           },
-          fill: {
-              opacity: 0.4
-          },
-          markers: {
-              size: 0
-          },
-          labels: ['CAP Cut-Off', 'Safety', 'Culture and Heritage', 'Location', 'Price', 'Difficulty']
-        }
+          toolbar: {show: false}
+        },
+
+        stroke: {
+          width: 0
+        },
+        fill: {
+          opacity: 0.4
+        },
+        markers: {
+          size: 0
+        },
+        labels: ['CAP Cut-Off', 'Safety', 'Culture and Heritage', 'Location', 'Expenditure', 'Overall Experience']
+      }
     }
   }
 }

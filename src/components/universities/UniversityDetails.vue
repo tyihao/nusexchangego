@@ -1,18 +1,10 @@
 <template>
   <v-container>
-     parent: {{selectedUniversity}}
-    <b-card-group deck>
-       <b-card
-         header-tag="header"
-         overlay
-         text-variant='white'
-         img-src="https://picsum.photos/899/70/"
-         footer-tag="footer"
-         title="University Details"
-       >
-         <b-card-text> Find out more about the university that you are interested in! </b-card-text>
-       </b-card>
-    </b-card-group>
+    <br>
+    <br><br>
+    <h1> University Details </h1>
+    <p> Find out more about the university that you are interested in </p>
+    <hr><br><br>
 
     <br><br>
     <regions-dropdown id="university_details" @newRegions="updateRegions"/>

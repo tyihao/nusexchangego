@@ -19,8 +19,12 @@ export default new Vuex.Store({
       {
         text: 'Modules',
         to: '/modules'
-      }
-    ]
+      }],
+      items2:
+      [{ text: 'Login',
+      to: '/login'
+    }]
+
   },
   getters: {
     categories: state => {
@@ -44,6 +48,9 @@ export default new Vuex.Store({
     },
     links: (state, getters) => {
       return state.items.concat(getters.categories)
+    },
+    links2: (state, getters) => {
+      return state.items2.concat(getters.categories)
     }
   },
   mutations: {

@@ -39,7 +39,7 @@
           Compare By Majors
         </v-btn>
       </template>
-      <span> Compare important information between universities filterd by their majors</span>
+      <span> Compare important information between universities based on your selected major</span>
     </v-tooltip>
 
 
