@@ -26,30 +26,87 @@
           <br>
           <br>
           <h4 id="list-item-2">Reviews</h4>
+          Based on 28 students from the past 4 semesters.
+          <br> <br> <br>
           <div align = 'left'>
-            Some more information here.
-          </div></br>
-          <br>
-          <br>
-          <h4 id="list-item-3">Analysis</h4>
-          <div align='left'>
-            <br><br>
-            <font size='3' face='verdana'> Students by Semester </font> <br>
-            <div id="multichart" align='center'>
-              <apexchart width="500" type="line" :options="chartOptions" :series="series"></apexchart>
-            </div>
-            <font size='3' face='verdana'> Students by Faculty </font> <br>
-            <div id="piechart" align='center'>
-              <apexchart type=pie width=360 :options="piechartOptions" :series="pieseries" />
-            </div>
+
+            <v-flex xs11 align-center>
+            <div>
+               <b-card-group deck>
+                 <b-card
+                   border-variant="secondary"
+                   header="Average Expenditure"
+                   header-border-variant="secondary"
+                   align="center"
+                 >
+                   <b-card-text>aLorem ipsum dolor sit amet, consectetur adipiscing elit.</b-card-text>
+                 </b-card>
+
+                 <b-card
+                   border-variant="secondary"
+                   header="School's location"
+                   header-border-variant="secondary"
+                   align="center"
+                 >
+                   <b-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b-card-text>
+                 </b-card>
+
+
+               </b-card-group>
+             </div>
+             <br>
+             <div>
+                <b-card-group deck>
+                  <b-card
+                    border-variant="secondary"
+                    header="Overall Safety"
+                    header-border-variant="secondary"
+                    align="center"
+                  >
+                    <b-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b-card-text>
+                  </b-card>
+
+                  <b-card
+                    border-variant="secondary"
+                    header="Culture and Heritage"
+                    header-border-variant="secondary"
+                    align="center"
+                  >
+                    <b-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</b-card-text>
+                  </b-card>
+
+
+                </b-card-group>
+              </div>
+            </v-flex>
 
 
 
-          </div></br>
-        </div>
+
+
+
+        </div></br>
+        <br>
+        <br>
+        <h4 id="list-item-3">Analysis</h4>
+        <div align='left'>
+          <br><br>
+          <font size='3' face='verdana'> Students by Semester </font> <br>
+          <div id="multichart" align='center'>
+            <apexchart width="500" type="line" :options="chartOptions" :series="series"></apexchart>
+          </div>
+          <font size='3' face='verdana'> Students by Faculty </font> <br>
+          <div id="piechart" align='center'>
+            <apexchart type=pie width=360 :options="piechartOptions" :series="pieseries" />
+          </div>
+
+
+
+        </div></br>
       </div>
-    </b-col>
-  </b-row>
+    </div>
+  </b-col>
+</b-row>
 </v-container>
 </template>
 

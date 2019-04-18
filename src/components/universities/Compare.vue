@@ -1,10 +1,22 @@
 <template>
   <v-container>
-  <v-layout align-center>
-  <v-flex xs6>
+    <v-flex>
+    <h1> Compare Universities </h1>
+    <p> Here you can choose and compare the specific universities!</p>
+  </v-flex> <hr>
+  <br>
+  <v-layout row wrap>
+  <v-flex xs12>
   <multi-selects/>
+  </v-flex>
+  <v-layout>
+  <v-flex xs6>
   <radial-chart/>
   </v-flex>
+  <v-flex xs6>
+  <radial-chart/>
+  </v-flex>
+  </v-layout>
   </v-layout>
 </v-container>
 </template>
@@ -15,8 +27,7 @@ export default {
   name: 'Compare Universities',
   data() {
     return {
-      value: null,
-      options: ['list', 'of', 'options']
+
     };
   },
   components: {
